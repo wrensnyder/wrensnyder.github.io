@@ -35,6 +35,12 @@ async function fetchSynonyms(word) {
   const data = await response.json();
   return data.map(item => item.word);
 }
+
+document.getElementById('inputWords').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        generateTitles();
+    }
+});
 </script>
 
 </body>
