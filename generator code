@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painting Title Generator Widget</title>
+</head>
+<body>
+
+<h1>Painting Title Generator</h1>
+<p>Enter words to generate painting titles:</p>
+<input type="text" id="inputWords" placeholder="Enter words...">
+<button onclick="generateTitles()">Generate Titles</button>
+
+<div id="output"></div>
+
+<script>
+async function generateTitles() {
+  const inputWords = document.getElementById('inputWords').value.trim().toLowerCase().split(' ');
+  const outputDiv = document.getElementById('output');
+  outputDiv.innerHTML = '';
+
+  for (let word of inputWords) {
+    const synonyms = await fetchSynonyms(word);
+    if (synonyms.length > 0) {
+      outputDiv.innerHTML += `<p>Synonyms for '${word}': ${synonyms.join(', ')}</p>`;
+    } else {
+      outputDiv.innerHTML += `<p>No synonyms found for '${word}'</p>`;
+    }
+  }
+}
+
+async function fetchSynonyms(word) {
+  const response = await fetch(`https://api.datamuse.com/words?rel_syn=${word}`);
+  const data = await response.json();
+  return data.map(item => item.word);
+}
+</script>
+
+</body>
+</html>
