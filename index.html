@@ -31,7 +31,7 @@ async function generateTitles() {
 }
 
 async function fetchSynonyms(word) {
-  const response = await fetch(`https://api.datamuse.com/words?rel_syn=${word}`);
+  const response = await fetch(`https://synonyms-word-info.p.rapidapi.com/v1/word/synonyms`);
   const data = await response.json();
   return data.map(item => item.word);
 }
