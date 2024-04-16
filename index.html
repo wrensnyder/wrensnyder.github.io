@@ -1,50 +1,62 @@
-// HTML
-<div>
-  <input type="text" id="inputText" placeholder="Enter words or phrases">
-  <button onclick="generateTitles()">Generate Titles</button>
-  <ul id="titleList"></ul>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painting Title Generator Widget</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
 
-// JavaScript
-const axios = require('axios');
+<h1>Painting Title Generator</h1>
+<p>Enter words to generate painting titles:</p>
+<input type="text" id="inputWords" placeholder="Enter words...">
+<button onclick="generateTitles()">Generate Titles</button>
 
+<div id="output"></div>
+
+<script>
 async function generateTitles() {
-  const inputText = document.getElementById('inputText').value.trim();
-  if (!inputText) {
-    alert('Please enter some words or phrases.');
-    return;
+  const inputWords = document.getElementById('inputWords').value.trim().toLowerCase().split(' ');
+  const outputDiv = document.getElementById('output');
+  outputDiv.innerHTML = '';
+
+  for (let word of inputWords) {
+    const synonyms = await fetchSynonyms(word);
+    if (synonyms.length > 0) {
+      outputDiv.innerHTML += `<p>Synonyms for '${word}': ${synonyms.join(', ')}</p>`;
+    } else {
+      outputDiv.innerHTML += `<p>No synonyms found for '${word}'</p>`;
+    }
   }
+}
+
+async function fetchSynonyms(word) {
+  const options = {
+    method: 'GET',
+    url: 'https://synonyms-word-info.p.rapidapi.com/v1/word/synonyms',
+    params: {str: word},
+    headers: {
+      'X-RapidAPI-Key': '689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6',
+      'X-RapidAPI-Host': 'synonyms-word-info.p.rapidapi.com'
+    }
+  };
 
   try {
-    const response = await axios.get('https://synonyms-word-info.p.rapidapi.com/v1/word/synonyms', {
-      params: { str: inputText },
-      headers: {
-        'X-RapidAPI-Key': '689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6',
-        'X-RapidAPI-Host': 'synonyms-word-info.p.rapidapi.com'
-      }
-    });
-
-    const synonyms = response.data.synonyms;
-    displayTitles(synonyms);
+    const response = await axios.request(options);
+    return response.data.synonyms;
   } catch (error) {
     console.error(error);
-    alert('An error occurred while fetching synonyms.');
+    return [];
   }
 }
 
-function displayTitles(synonyms) {
-  const titleList = document.getElementById('titleList');
-  titleList.innerHTML = '';
+document.getElementById('inputWords').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        generateTitles();
+    }
+});
+</script>
 
-  if (synonyms.length === 0) {
-    const listItem = document.createElement('li');
-    listItem.textContent = 'No synonyms found.';
-    titleList.appendChild(listItem);
-  } else {
-    synonyms.forEach(synonym => {
-      const listItem = document.createElement('li');
-      listItem.textContent = synonym;
-      titleList.appendChild(listItem);
-    });
-  }
-}
+</body>
+</html>
