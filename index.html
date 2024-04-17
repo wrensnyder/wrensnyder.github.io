@@ -1,29 +1,39 @@
-import requests
+const axios = require('axios');
 
-def get_synonyms(word):
-    url = "https://wordsapiv1.p.rapidapi.com/words/{}/synonyms".format(word)
-    headers = {
-        'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
-        'x-rapidapi-key': "689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6"
+async function getSynonyms(word) {
+    try {
+        const response = await axios.get(`https://wordsapiv1.p.rapidapi.com/words/${word}/synonyms`, {
+            headers: {
+                'x-rapidapi-host': 'wordsapiv1.p.rapidapi.com',
+                'x-rapidapi-key': '689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6'
+            }
+        });
+        return response.data.synonyms || [];
+    } catch (error) {
+        console.error('Error fetching synonyms:', error);
+        return [];
     }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json().get('synonyms', [])
-    else:
-        return []
+}
 
-def generate_titles(words):
-    titles = []
-    for word in words:
-        synonyms = get_synonyms(word)
-        if synonyms:
-            titles.extend(synonyms)
-    return titles
+async function generateTitles(words) {
+    const titles = [];
+    for (const word of words) {
+        const synonyms = await getSynonyms(word);
+        titles.push(...synonyms);
+    }
+    return titles;
+}
 
-# Example usage
-user_input = input("Enter a series of words: ")
-words = user_input.split()
-generated_titles = generate_titles(words)
-print("Generated Titles:")
-for title in generated_titles:
-    print(title)
+// Example usage
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+readline.question('Enter a series of words: ', async (input) => {
+    const words = input.split(' ');
+    const generatedTitles = await generateTitles(words);
+    console.log('Generated Titles:');
+    generatedTitles.forEach(title => console.log(title));
+    readline.close();
+});
