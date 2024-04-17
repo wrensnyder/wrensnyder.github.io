@@ -1,39 +1,29 @@
-const axios = require('axios');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painting Title Generator</title>
+</head>
+<body>
+    <h1>Painting Title Generator</h1>
+    <input type="text" id="wordsInput" placeholder="Enter a series of words">
+    <button onclick="generateTitles()">Generate Titles</button>
+    <ul id="titlesList"></ul>
 
-async function getSynonyms(word) {
-    try {
-        const response = await axios.get(`https://wordsapiv1.p.rapidapi.com/words/${word}/synonyms`, {
-            headers: {
-                'x-rapidapi-host': 'wordsapiv1.p.rapidapi.com',
-                'x-rapidapi-key': '689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6'
-            }
-        });
-        return response.data.synonyms || [];
-    } catch (error) {
-        console.error('Error fetching synonyms:', error);
-        return [];
-    }
-}
-
-async function generateTitles(words) {
-    const titles = [];
-    for (const word of words) {
-        const synonyms = await getSynonyms(word);
-        titles.push(...synonyms);
-    }
-    return titles;
-}
-
-// Example usage
-const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-readline.question('Enter a series of words: ', async (input) => {
-    const words = input.split(' ');
-    const generatedTitles = await generateTitles(words);
-    console.log('Generated Titles:');
-    generatedTitles.forEach(title => console.log(title));
-    readline.close();
-});
+    <script>
+        async function generateTitles() {
+            const words = document.getElementById('wordsInput').value;
+            const response = await fetch(`/api/titles?words=${words}`);
+            const titles = await response.json();
+            const titlesList = document.getElementById('titlesList');
+            titlesList.innerHTML = '';
+            titles.forEach(title => {
+                const li = document.createElement('li');
+                li.textContent = title;
+                titlesList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
