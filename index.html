@@ -1,62 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painting Title Generator Widget</title>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-<body>
+import requests
 
-<h1>Painting Title Generator</h1>
-<p>Enter words to generate painting titles:</p>
-<input type="text" id="inputWords" placeholder="Enter words...">
-<button onclick="generateTitles()">Generate Titles</button>
-
-<div id="output"></div>
-
-<script>
-async function generateTitles() {
-  const inputWords = document.getElementById('inputWords').value.trim().toLowerCase().split(' ');
-  const outputDiv = document.getElementById('output');
-  outputDiv.innerHTML = '';
-
-  for (let word of inputWords) {
-    const synonyms = await fetchSynonyms(word);
-    if (synonyms.length > 0) {
-      outputDiv.innerHTML += `<p>Synonyms for '${word}': ${synonyms.join(', ')}</p>`;
-    } else {
-      outputDiv.innerHTML += `<p>No synonyms found for '${word}'</p>`;
+def get_synonyms(word):
+    url = "https://wordsapiv1.p.rapidapi.com/words/{}/synonyms".format(word)
+    headers = {
+        'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
+        'x-rapidapi-key': "689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6"
     }
-  }
-}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get('synonyms', [])
+    else:
+        return []
 
-async function fetchSynonyms(word) {
-  const options = {
-    method: 'GET',
-    url: 'https://synonyms-word-info.p.rapidapi.com/v1/word/synonyms',
-    params: {str: word},
-    headers: {
-      'X-RapidAPI-Key': '689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6',
-      'X-RapidAPI-Host': 'synonyms-word-info.p.rapidapi.com'
-    }
-  };
+def generate_titles(words):
+    titles = []
+    for word in words:
+        synonyms = get_synonyms(word)
+        if synonyms:
+            titles.extend(synonyms)
+    return titles
 
-  try {
-    const response = await axios.request(options);
-    return response.data.synonyms;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
-document.getElementById('inputWords').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        generateTitles();
-    }
-});
-</script>
-
-</body>
-</html>
+# Example usage
+user_input = input("Enter a series of words: ")
+words = user_input.split()
+generated_titles = generate_titles(words)
+print("Generated Titles:")
+for title in generated_titles:
+    print(title)
