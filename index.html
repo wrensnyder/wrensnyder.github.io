@@ -31,9 +31,16 @@ async function generateTitles() {
 }
 
 async function fetchSynonyms(word) {
-  const response = await fetch(`https://api.datamuse.com/words?rel_syn=${word}`);
+  const apiKey = '689cbb027cmshad751b1bfca97bap1a7fc0jsnd31064068aa6'; // Replace 'YOUR_RAPIDAPI_KEY' with your actual RapidAPI key
+  const response = await fetch(`https://synonyms-word-info.p.rapidapi.com/getSynonyms?word=${word}`, {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-host': 'synonyms-word-info.p.rapidapi.com',
+      'x-rapidapi-key': apiKey
+    }
+  });
   const data = await response.json();
-  return data.map(item => item.word);
+  return data.synonyms || [];
 }
 
 document.getElementById('inputWords').addEventListener('keypress', function (e) {
