@@ -15,39 +15,36 @@
 <div id="output"></div>
 
 <script>
-async function generateTitles() {
-  const inputWords = document.getElementById('inputWords').value.trim().toLowerCase().split(' ');
-  const outputDiv = document.getElementById('output');
-  outputDiv.innerHTML = '';
+var https = require('follow-redirects').https;
+var fs = require('fs');
 
-  for (let word of inputWords) {
-    const synonyms = await fetchSynonyms(word);
-    if (synonyms.length > 0) {
-      outputDiv.innerHTML += `<p>Synonyms for '${word}': ${synonyms.join(', ')}</p>`;
-    } else {
-      outputDiv.innerHTML += `<p>No synonyms found for '${word}'</p>`;
-    }
-  }
-}
+var options = {
+  'method': 'GET',
+  'hostname': '{{api.wordio.co}}',
+  'path': '/v1/word/synonyms?str=state',
+  'headers': {
+  },
+  'maxRedirects': 20
+};
 
-async function fetchSynonyms(word) {
-  const apiKey = 'e2cc52e139msh0875901f96fb4a4p1c3904jsn0aadcaa47f51'; // Replace 'YOUR_RAPIDAPI_KEY' with your actual RapidAPI key
-  const response = await fetch(`https://synonyms-word-info.p.rapidapi.com/getSynonyms?word=${word}`, {
-    method: 'GET',
-    headers: {
-      'x-rapidapi-host': 'synonyms-word-info.p.rapidapi.com',
-      'x-rapidapi-key': apiKey
-    }
+var req = https.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
   });
-  const data = await response.json();
-  return data.synonyms || [];
-}
 
-document.getElementById('inputWords').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        generateTitles();
-    }
+  res.on("end", function (chunk) {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+    console.error(error);
+  });
 });
+
+req.end();
 </script>
 
 </body>
