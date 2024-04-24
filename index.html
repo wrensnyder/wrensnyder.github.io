@@ -1,51 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painting Title Generator Widget</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synonym Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    input[type="text"] {
+      padding: 8px;
+      margin: 10px;
+      width: 300px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #synonyms {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
+  <h1>Synonym Generator</h1>
+  <input type="text" id="wordInput" placeholder="Enter a word">
+  <button onclick="getSynonyms()">Generate Synonyms</button>
+  <div id="synonyms"></div>
 
-<h1>Painting Title Generator</h1>
-<p>Enter words to generate painting titles:</p>
-<input type="text" id="inputWords" placeholder="Enter words...">
-<button onclick="generateTitles()">Generate Titles</button>
+  <script>
+    // Function to handle fetching synonyms
+    async function getSynonyms() {
+      const word = document.getElementById("wordInput").value;
+      const url = `https://api.wordio.co/v1/spellcheck?str=${word}`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        displaySynonyms(data);
+      } catch (error) {
+        console.error("Error fetching synonyms:", error);
+      }
+    }
 
-<div id="output"></div>
+    // Function to display synonyms on the page
+    function displaySynonyms(synonyms) {
+      const synonymsDiv = document.getElementById("synonyms");
+      synonymsDiv.innerHTML = "";
 
-<script>
-var https = require('follow-redirects').https;
-var fs = require('fs');
+      if (synonyms.length === 0) {
+        synonymsDiv.textContent = "No synonyms found.";
+        return;
+      }
 
-var options = {
-  'method': 'GET',
-  'hostname': '{{api.wordio.co}}',
-  'path': '/v1/word/synonyms?str=state',
-  'headers': {
-  },
-  'maxRedirects': 20
-};
+      const synonymsList = document.createElement("ul");
+      synonyms.forEach(synonym => {
+        const listItem = document.createElement("li");
+        listItem.textContent = synonym;
+        synonymsList.appendChild(listItem);
+      });
 
-var req = https.request(options, function (res) {
-  var chunks = [];
+      synonymsDiv.appendChild(synonymsList);
+    }
 
-  res.on("data", function (chunk) {
-    chunks.push(chunk);
-  });
-
-  res.on("end", function (chunk) {
-    var body = Buffer.concat(chunks);
-    console.log(body.toString());
-  });
-
-  res.on("error", function (error) {
-    console.error(error);
-  });
-});
-
-req.end();
-</script>
-
+    // Event listener to fetch synonyms when Enter key is pressed
+    document.getElementById("wordInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        getSynonyms();
+      }
+    });
+  </script>
 </body>
 </html>
